@@ -30,6 +30,7 @@ function createLi(result) {
   const a = document.createElement('a');
   a.href = result.url;
   a.innerText = result.title;
+  a.target = '_blank';
   const li = document.createElement('li');
   li.setAttribute('class', 'list-group-item');
   li.setAttribute('id', result.id);
