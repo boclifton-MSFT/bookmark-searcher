@@ -479,3 +479,7 @@ textarea.form-control-lg {
     margin-top: .25rem !important;
     margin-bottom: .25rem !important
 }
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
