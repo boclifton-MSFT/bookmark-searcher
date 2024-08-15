@@ -1,7 +1,10 @@
 # Bookmark Searcher
 Chrome and Edge extension for searching bookmarks
 
-Steps to install
+**Available in Chrome Web Store!**
+[Bookmark Searcher on Chrome Web Store](https://chromewebstore.google.com/detail/bookmark-searcher/nalokehijhjobfhjcbfjgihaofppejlb)
+
+### (For developers) Steps to install for local development
 1. Download the files from this repo
 1. Extract all files to a folder like "C:\Users\me\BrowserExtensions\BookmarkSearcher"
 1. Open Edge or Chrome
