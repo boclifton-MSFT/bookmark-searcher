@@ -6,7 +6,7 @@ Chrome and Edge extension for searching bookmarks
 
 ## Tech notes
 - Manifest V3 extension popup
-- No CSS framework dependency (popup styles are in `/home/runner/work/bookmark-searcher/bookmark-searcher/popup/popup.css`)
+- No CSS framework dependency (popup styles are in `popup/popup.css`)
 - Supports bookmark and folder search results (folders are shown as non-link results)
 
 ### (For developers) Steps to install for local development
@@ -17,7 +17,7 @@ Chrome and Edge extension for searching bookmarks
 
 ### Package for release
 Run PowerShell from the repository root:
-`pwsh -File /home/runner/work/bookmark-searcher/bookmark-searcher/build.ps1`
+`pwsh -File ./build.ps1`
 
 ### Manual verification checklist
 - Popup opens with expected layout and no horizontal overflow.
