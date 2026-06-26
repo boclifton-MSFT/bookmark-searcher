@@ -1,4 +1,4 @@
-$source = "./icons", "./lib", "./popup", "./manifest.json"
+$source = "./icons", "./popup", "./manifest.json"
 $destination = "./dist/BookmarkSearcher.zip"
 
 Write-Host "Creating zip file $destination..." -NoNewline -ForegroundColor Green

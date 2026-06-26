@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <title>Bookmark Searcher</title>
-  <link rel="stylesheet" href="../lib/bootstrap.min.css" />
+  <link rel="stylesheet" href="popup.css" />
 </head>
 
 <body>
-  <div id="mainDiv" style="width: 450px" class="p-2 fs-6 fw-light">
-    <h4 for="bmSearch" class="form-label">Search Bookmarks</h4>
-    <input id="bmSearch" class="form-control" placeholder="Text to search" autofocus />
-    <button type="submit" class="mt-2 btn btn-primary" id="bmSearchBtn">Search</button>
-    <p class="text-muted my-1 ml-2" id="resultCount"></p>
+  <div id="mainDiv" class="popup-container">
+    <h1 class="popup-title">Search Bookmarks</h1>
+    <label for="bmSearch" class="visually-hidden">Search bookmarks</label>
+    <input id="bmSearch" class="search-input" placeholder="Text to search" autofocus />
+    <button type="submit" class="search-button" id="bmSearchBtn">Search</button>
+    <p class="result-count" id="resultCount"></p>
+    <div id="results" class="results"></div>
   </div>
-
-  <div id="results"></div>
   <script src="popup.js"></script>
 </body>
 

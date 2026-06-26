@@ -1,73 +1,125 @@
-function addParentTitle(element, text, rootId) {
-  if (element.parentId && element.parentId !== '0') {
-    chrome.bookmarks.get(element.parentId, (results) => {
-      results.forEach(p => {
-        if (p.title) {
-          text = text
-            ? p.title + ' > ' + text
-            : p.title;
-        }
-        if (p.parentId === '0') {
-          console.log('Inner Text: ' + text);
-          document.getElementById(rootId).querySelector('p').innerText = text;
-        }
-        addParentTitle(p, text, rootId);
-      })
+const UNTITLED_LABEL = '(Untitled)';
+const FOLDER_SUFFIX = ' (Folder)';
+
+const searchInput = document.getElementById('bmSearch');
+const searchButton = document.getElementById('bmSearchBtn');
+const resultCount = document.getElementById('resultCount');
+const resultsRoot = document.getElementById('results');
+
+function getDisplayTitle(item) {
+  const title = item?.title?.trim();
+  return title ? title : UNTITLED_LABEL;
+}
+
+function getBookmarkById(id) {
+  return new Promise((resolve) => {
+    chrome.bookmarks.get(id, (results) => {
+      resolve(results && results[0] ? results[0] : null);
     });
+  });
+}
+
+async function getParentPath(item) {
+  const segments = [];
+  let parentId = item.parentId;
+
+  while (parentId && parentId !== '0') {
+    const parent = await getBookmarkById(parentId);
+    if (!parent) {
+      break;
+    }
+    segments.unshift(getDisplayTitle(parent));
+    parentId = parent.parentId;
   }
+
+  return segments.join(' > ');
 }
 
-function displayParent(element) {
-  let text = '';
-  addParentTitle(element, text, element.id);
-  const p = document.createElement('p');
-  p.setAttribute('class', 'ml-1 mt-1 text-small text-muted mb-0');
-  p.setAttribute('style', 'font-size: 0.8rem');
-  return p;
-}
+function createTitleElement(result) {
+  const title = `${getDisplayTitle(result)}${result.url ? '' : FOLDER_SUFFIX}`;
 
-function createLi(result) {
-  const a = document.createElement('a');
-  a.href = result.url;
-  a.innerText = result.title;
-  a.target = '_blank';
-  const li = document.createElement('li');
-  li.setAttribute('class', 'list-group-item');
-  li.setAttribute('id', result.id);
-  
-
-  if (result.parentId && result.parentId !== '0') {
-    const p = displayParent(result);
-    li.appendChild(p);
+  if (result.url) {
+    const link = document.createElement('a');
+    link.className = 'result-link';
+    link.href = result.url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = title;
+    return link;
   }
-  li.appendChild(a);
-  return li;
+
+  const folderTitle = document.createElement('span');
+  folderTitle.className = 'result-folder-title';
+  folderTitle.textContent = title;
+  return folderTitle;
 }
 
-document.getElementById("bmSearch").addEventListener("keypress", function (event) {
-  if (event.key === "Enter") {
+function createResultItem(result, parentPath) {
+  const item = document.createElement('li');
+  item.className = 'result-item';
+  item.id = result.id;
+
+  if (parentPath) {
+    const path = document.createElement('p');
+    path.className = 'result-path';
+    path.textContent = parentPath;
+    item.appendChild(path);
+  }
+
+  item.appendChild(createTitleElement(result));
+  return item;
+}
+
+function renderMessage(message) {
+  resultsRoot.innerHTML = '';
+  const emptyState = document.createElement('p');
+  emptyState.className = 'results-empty';
+  emptyState.textContent = message;
+  resultsRoot.appendChild(emptyState);
+}
+
+function renderResults(items) {
+  resultsRoot.innerHTML = '';
+
+  if (!items.length) {
+    renderMessage('No results found.');
+    return;
+  }
+
+  const list = document.createElement('ul');
+  list.id = 'bmList';
+  list.className = 'results-list';
+
+  items.forEach((item) => {
+    list.appendChild(item);
+  });
+
+  resultsRoot.appendChild(list);
+}
+
+searchInput.addEventListener('keypress', (event) => {
+  if (event.key === 'Enter') {
     event.preventDefault();
-    document.getElementById("bmSearchBtn").click();
+    searchButton.click();
   }
 });
 
-document.getElementById('bmSearchBtn').addEventListener('click', () => {
-  const search = document.getElementById('bmSearch').value;
-  chrome.bookmarks.search(search, (results) => {
-    document.getElementById('resultCount').innerText = `${results.length} results found`;
+searchButton.addEventListener('click', async () => {
+  const search = searchInput.value.trim();
 
-    const root = document.getElementById('results');
-    root.innerHTML = "";
+  if (!search) {
+    resultCount.textContent = '0 results found';
+    renderMessage('Enter text to search.');
+    return;
+  }
 
-    let ul = document.createElement('ul');
-    ul.setAttribute('id', 'bmList');
-    ul.setAttribute('class', 'list-group mt-2 rounded-0');
+  chrome.bookmarks.search(search, async (results) => {
+    const items = await Promise.all(results.map(async (result) => {
+      const parentPath = await getParentPath(result);
+      return createResultItem(result, parentPath);
+    }));
 
-    root.appendChild(ul);
-
-    results.forEach((result) => {
-      const li = createLi(result)
-      ul.appendChild(li);
-    });
+    resultCount.textContent = `${items.length} results found`;
+    renderResults(items);
   });
 });
