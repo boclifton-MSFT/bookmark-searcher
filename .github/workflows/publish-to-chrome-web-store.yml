@@ -1,8 +1,6 @@
 name: Publish to Chrome Web Store
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
 
 permissions: {}
@@ -13,11 +11,18 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Validate release tag
+        shell: bash
+        run: |
+          if [[ ! "$GITHUB_REF" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Select a release tag in vMAJOR.MINOR.PATCH format (for example, v1.2.3)."
+            exit 1
+          fi
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - name: Package extension
-        run: zip -r "$RUNNER_TEMP/extension.zip" icons lib popup manifest.json
+        run: zip -r "$RUNNER_TEMP/extension.zip" icons popup manifest.json
       - uses: actions/upload-artifact@v4
         with:
           name: extension
@@ -47,7 +52,8 @@ jobs:
           access_token_lifetime: 1800s
           create_credentials_file: false
           export_environment_variables: false
-      - uses: hamzahamidi/publish-to-chrome-web-store@v1
+      - name: Upload and publish extension
+        uses: hamzahamidi/publish-to-chrome-web-store@v1
         with:
           access-token: ${{ steps.auth.outputs.access_token }}
           publisher-id: ${{ vars.CWS_PUBLISHER_ID }}
