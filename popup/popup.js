@@ -21,8 +21,7 @@ function displayParent(element) {
   let text = '';
   addParentTitle(element, text, element.id);
   const p = document.createElement('p');
-  p.setAttribute('class', 'ml-1 mt-1 text-small text-muted mb-0');
-  p.setAttribute('style', 'font-size: 0.8rem');
+  p.setAttribute('class', 'bookmark-parent');
   return p;
 }
 
@@ -32,7 +31,7 @@ function createLi(result) {
   a.innerText = result.title;
   a.target = '_blank';
   const li = document.createElement('li');
-  li.setAttribute('class', 'list-group-item');
+  li.setAttribute('class', 'bookmark-result');
   li.setAttribute('id', result.id);
   
 
@@ -61,8 +60,6 @@ document.getElementById('bmSearchBtn').addEventListener('click', () => {
 
     let ul = document.createElement('ul');
     ul.setAttribute('id', 'bmList');
-    ul.setAttribute('class', 'list-group mt-2 rounded-0');
-
     root.appendChild(ul);
 
     results.forEach((result) => {
